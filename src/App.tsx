@@ -1,84 +1,12 @@
-import React, { useState, useReducer, useContext, Dispatch } from "react";
-import styled, {
-  createGlobalStyle,
-  DefaultTheme,
-  ThemeProvider,
-} from "styled-components/macro";
-
-interface state {
-  popSize: number;
-  minDepth: number;
-  maxDepth: number;
-  location: string;
-}
-
-interface action {
-  type: string;
-  value: string;
-}
-
-const initialState: state = {
-  popSize: 24,
-  minDepth: 0,
-  maxDepth: 12,
-  location: "welcome",
-};
-
-const rootReducer = (state: state, action: action) => {
-  switch (action.type) {
-    case "SET_POP_SIZE":
-      return {
-        ...state,
-        popSize: +action.value,
-      };
-    case "SET_MIN_DEPTH":
-      return {
-        ...state,
-        minDepth: +action.value,
-      };
-    case "SET_MAX_DEPTH":
-      return {
-        ...state,
-        maxDepth: +action.value,
-      };
-    case "SET_LOCATION":
-      return {
-        ...state,
-        location: action.value,
-      };
-    default:
-      throw new Error("Invalid action");
-  }
-};
-
-const StateContext = React.createContext(initialState);
-const DispatchContext = React.createContext((a: action) => {});
-
-const darkMode: DefaultTheme = {
-  bg: "rgb(5, 21, 28)",
-  fg: "white",
-};
-
-const lightMode: DefaultTheme = {
-  bg: "rgb(255, 255, 255)",
-  fg: "black",
-};
-
-const GlobalStyle = createGlobalStyle`
-  body { 
-    margin: 0px;
-    background: ${(props) => props.theme.bg};
-    padding: 0px;
-    height: 100%;
-  }
-  html {
-    height: 100%
-  }
-  
-  #root {
-    height: 100%;
-  }
-`;
+import React, { useContext } from "react";
+import styled from "styled-components/macro";
+import Theme, { ThemeControl } from "./Theme";
+import {
+  StateProvider,
+  StateContext,
+  DispatchContext,
+  Action,
+} from "./GlobalState";
 
 const Container = styled.div`
   padding: 1em;
@@ -103,21 +31,23 @@ interface ScreenProps {
   visible: boolean;
 }
 
-const setLocation = (dispatch: React.Dispatch<action>, value: string) =>
+const setLocation = (dispatch: React.Dispatch<Action>, value: string) =>
   dispatch({ type: "SET_LOCATION", value });
 
-const setPopSize = (dispatch: React.Dispatch<action>, value: string) =>
+const setPopSize = (dispatch: React.Dispatch<Action>, value: string) =>
   dispatch({ type: "SET_POP_SIZE", value });
 
-const setMinDepth = (dispatch: React.Dispatch<action>, value: string) =>
+const setMinDepth = (dispatch: React.Dispatch<Action>, value: string) =>
   dispatch({ type: "SET_MIN_DEPTH", value });
 
-const setMaxDepth = (dispatch: React.Dispatch<action>, value: string) =>
+const setMaxDepth = (dispatch: React.Dispatch<Action>, value: string) =>
   dispatch({ type: "SET_MAX_DEPTH", value });
+
+const setTheme = (dispatch: React.Dispatch<Action>, value: string) =>
+  dispatch({ type: "SET_THEME", value });
 
 const WelcomeScreen = (props: ScreenProps) => {
   const dispatch = useContext(DispatchContext);
-  const state = useContext(StateContext);
   const { visible } = props;
 
   return (
@@ -173,30 +103,41 @@ const PopulationScreen = (props: ScreenProps) => {
 };
 
 function App() {
-  const [theme, setTheme] = useState(darkMode);
-  const toggleTheme = () => {
-    setTheme(theme === lightMode ? darkMode : lightMode);
-  };
-
-  const [state, dispatch] = useReducer(rootReducer, initialState);
-  const { location } = state;
   return (
-    <DispatchContext.Provider value={dispatch}>
-      <StateContext.Provider value={state}>
-        <ThemeProvider theme={theme}>
-          <GlobalStyle />
-          <Container>
-            Imagene3
-            <button onClick={toggleTheme}>Theme</button>
-            <Grid>
-              <WelcomeScreen visible={location === "welcome"} />
-              <PopulationScreen visible={location === "population"} />
-            </Grid>
-          </Container>
-        </ThemeProvider>
-      </StateContext.Provider>
-    </DispatchContext.Provider>
+    <StateProvider>
+      <ConnectedTheme>
+        <Container>
+          Imagene3
+          <ConnectedThemeControl />
+          <Grid>
+            <ConnectedRouter />
+          </Grid>
+        </Container>
+      </ConnectedTheme>
+    </StateProvider>
   );
 }
 
+const ConnectedTheme = ({ children }: { children: any }) => {
+  const { theme } = useContext(StateContext);
+  return <Theme theme={theme}>{children}</Theme>;
+};
+
+const ConnectedThemeControl = () => {
+  const dispatch = useContext(DispatchContext);
+  const { theme } = useContext(StateContext);
+  return (
+    <ThemeControl onSelectTheme={setTheme.bind(null, dispatch)} theme={theme} />
+  );
+};
+
+const ConnectedRouter = () => {
+  const { location } = useContext(StateContext);
+  return (
+    <React.Fragment>
+      <WelcomeScreen visible={location === "welcome"} />
+      <PopulationScreen visible={location === "population"} />
+    </React.Fragment>
+  );
+};
 export default App;
