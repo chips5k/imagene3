@@ -26,7 +26,7 @@ const GlobalStyle = createGlobalStyle`
     background: ${(props) => props.theme.bg};
     padding: 0px;
     height: 100%;
-    font-family: 'Roboto';
+    font-family: 'Atkinson Hyperlegible';
   }
   html {
     height: 100%
