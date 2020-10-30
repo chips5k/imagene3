@@ -65,4 +65,19 @@ const StateProvider = ({ children }: { children: any }) => {
   );
 };
 
+export const setLocation = (dispatch: React.Dispatch<Action>, value: string) =>
+  dispatch({ type: "SET_LOCATION", value });
+
+export const setPopSize = (dispatch: React.Dispatch<Action>, value: string) =>
+  dispatch({ type: "SET_POP_SIZE", value });
+
+export const setMinDepth = (dispatch: React.Dispatch<Action>, value: string) =>
+  dispatch({ type: "SET_MIN_DEPTH", value });
+
+export const setMaxDepth = (dispatch: React.Dispatch<Action>, value: string) =>
+  dispatch({ type: "SET_MAX_DEPTH", value });
+
+export const setTheme = (dispatch: React.Dispatch<Action>, value: string) =>
+  dispatch({ type: "SET_THEME", value });
+
 export { StateProvider, DispatchContext, StateContext };

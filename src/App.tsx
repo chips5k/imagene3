@@ -5,12 +5,15 @@ import {
   StateProvider,
   StateContext,
   DispatchContext,
-  Action,
+  setLocation,
+  setMinDepth,
+  setMaxDepth,
+  setPopSize,
+  setTheme,
 } from "./GlobalState";
 
 const Container = styled.div`
   padding: 1em;
-  height: 100%;
   color: ${(props) => props.theme.fg};
 `;
 const Grid = styled.div`
@@ -20,31 +23,18 @@ const Grid = styled.div`
   height: 100%;
   width: 100%;
 `;
+
 const Wrapper = styled.div`
   grid-column: 2/5;
   grid-row: 1/1;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1em;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2em;
+  color: rgba(255, 255, 255, 0.9);
 `;
 
 interface ScreenProps {
   visible: boolean;
 }
-
-const setLocation = (dispatch: React.Dispatch<Action>, value: string) =>
-  dispatch({ type: "SET_LOCATION", value });
-
-const setPopSize = (dispatch: React.Dispatch<Action>, value: string) =>
-  dispatch({ type: "SET_POP_SIZE", value });
-
-const setMinDepth = (dispatch: React.Dispatch<Action>, value: string) =>
-  dispatch({ type: "SET_MIN_DEPTH", value });
-
-const setMaxDepth = (dispatch: React.Dispatch<Action>, value: string) =>
-  dispatch({ type: "SET_MAX_DEPTH", value });
-
-const setTheme = (dispatch: React.Dispatch<Action>, value: string) =>
-  dispatch({ type: "SET_THEME", value });
 
 const WelcomeScreen = (props: ScreenProps) => {
   const dispatch = useContext(DispatchContext);
@@ -52,7 +42,12 @@ const WelcomeScreen = (props: ScreenProps) => {
 
   return (
     <Wrapper style={{ display: visible ? "block" : "none" }}>
-      Not sure what goes here yet...
+      <h2>What is Imagene3?</h2>
+      <p>
+        An application that generates interesting imagery through the use of
+        Darwin's theory of evolution.
+      </p>
+
       <button onClick={() => setLocation(dispatch, "population")}>
         Continue
       </button>
@@ -140,4 +135,5 @@ const ConnectedRouter = () => {
     </React.Fragment>
   );
 };
+
 export default App;
