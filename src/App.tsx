@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import styled from "styled-components/macro";
 import Theme, { ThemeControl } from "./Theme";
-import { Transition } from "react-transition-group";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import {
   StateProvider,
   StateContext,
@@ -12,6 +12,7 @@ import {
   setPopSize,
   setTheme,
 } from "./GlobalState";
+import { time } from "console";
 
 const Container = styled.div`
   padding: 1em;
@@ -38,26 +39,70 @@ interface ScreenProps {
 }
 
 const Square = styled.div`
-  width: 300px;
-  height: 300px;
+  width: 100px;
+  height: 100px;
+  grid-column: 2/5;
+  grid-row: 1/1;
   background: white;
   border: 1px solid black;
-  transition: 0.5s;
-  transform: translateX(
-    ${({ state }: { state: string }) => {
-      console.log(state);
-      return state === "entering" || state === "entered" ? 0 : 400;
-    }}px
-  );
-  opacity: ${({ state }: { state: string }) => {
-    return state === "entering" || state === "entered" ? 1 : 0;
-  }};
+  transition: 0.2s;
+`;
+
+const SlideTransition = styled.div`
+  display: grid;
+  grid-column: 2/5;
+  grid-row: 1/1;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2em;
+  color: rgba(255, 255, 255, 0.9);
+
+  &.forward > .enter {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+
+  &.forward > .enter-active {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+
+  &.forward > .exit {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+
+  &.forward > .exit-active {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+
+  &.backward > .enter {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+
+  &.backward > .enter-active {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+
+  &.backward > .exit {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+
+  &.backward > .exit-active {
+    transform: translateX(100px);
+    opacity: 0;
+  }
 `;
 
 const WelcomeScreen = (props: ScreenProps) => {
   const dispatch = useContext(DispatchContext);
   const { visible } = props;
-  const [animate, setAnimate] = useState(false);
+  const initial: string[] = [];
+  const [items, setItems] = useState(initial);
+  const [backward, setBackward] = useState(false);
   return (
     <Wrapper style={{ display: visible ? "block" : "none" }}>
       <h2>What is Imagene3?</h2>
@@ -66,13 +111,33 @@ const WelcomeScreen = (props: ScreenProps) => {
         Darwin's theory of evolution.
       </p>
 
-      <Transition in={animate} timeout={500}>
-        {(state) => {
-          return <Square state={state}>Hello</Square>;
-        }}
-      </Transition>
+      <TransitionGroup
+        component={SlideTransition}
+        className={backward ? "backward" : "forward"}
+      >
+        {items.map((n) => (
+          <CSSTransition key={n} timeout={200}>
+            <Square>Hello</Square>
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
       <p>
-        <button onClick={() => setAnimate(!animate)}>Move the square</button>
+        <button
+          onClick={() => {
+            setBackward(false);
+            setItems(["forward-" + window.performance.now()]);
+          }}
+        >
+          Forward
+        </button>
+        <button
+          onClick={() => {
+            setBackward(true);
+            setItems(["back-" + window.performance.now()]);
+          }}
+        >
+          Backward
+        </button>
         <button onClick={() => setLocation(dispatch, "information")}>
           What does that mean?
         </button>
