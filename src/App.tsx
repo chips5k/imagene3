@@ -6,156 +6,106 @@ import {
   StateProvider,
   StateContext,
   DispatchContext,
-  setLocation,
   setMinDepth,
   setMaxDepth,
   setPopSize,
   setTheme,
 } from "./GlobalState";
-import { time } from "console";
 
 const Container = styled.div`
   padding: 1em;
   color: ${(props) => props.theme.fg};
 `;
-const Grid = styled.div`
+
+const ScreenContainer = styled.div`
+  padding: 1em;
+  grid-column: 2/5;
+  grid-row: 1/1;
+  background: rgba(255, 255, 255, 0.1);
+  color: ${(props) => props.theme.fg};
+  transition: 0.2s;
+`;
+
+const ScreensContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   grid-template-rows: 1fr;
   height: 100%;
   width: 100%;
-`;
 
-const Wrapper = styled.div`
-  grid-column: 2/5;
-  grid-row: 1/1;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 2em;
-  color: rgba(255, 255, 255, 0.9);
-`;
-
-interface ScreenProps {
-  visible: boolean;
-}
-
-const Square = styled.div`
-  width: 100px;
-  height: 100px;
-  grid-column: 2/5;
-  grid-row: 1/1;
-  background: white;
-  border: 1px solid black;
-  transition: 0.2s;
-`;
-
-const SlideTransition = styled.div`
-  display: grid;
-  grid-column: 2/5;
-  grid-row: 1/1;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 2em;
-  color: rgba(255, 255, 255, 0.9);
-
-  &.forward > .enter {
-    transform: translateX(100px);
+  &.forwards > .enter {
+    transform: translateX(800px);
     opacity: 0;
   }
 
-  &.forward > .enter-active {
+  &.forwards > .enter-active {
     transform: translateX(0px);
     opacity: 1;
   }
 
-  &.forward > .exit {
+  &.forwards > .exit {
     transform: translateX(0px);
     opacity: 1;
   }
 
-  &.forward > .exit-active {
-    transform: translateX(-100px);
+  &.forwards > .exit-active {
+    transform: translateX(-800px);
     opacity: 0;
   }
 
-  &.backward > .enter {
-    transform: translateX(-100px);
+  &.backwards > .enter {
+    transform: translateX(-800px);
     opacity: 0;
   }
 
-  &.backward > .enter-active {
+  &.backwards > .enter-active {
     transform: translateX(0px);
     opacity: 1;
   }
 
-  &.backward > .exit {
+  &.backwards > .exit {
     transform: translateX(0px);
     opacity: 1;
   }
 
-  &.backward > .exit-active {
-    transform: translateX(100px);
+  &.backwards > .exit-active {
+    transform: translateX(800px);
     opacity: 0;
   }
 `;
 
-const WelcomeScreen = (props: ScreenProps) => {
+const WelcomeScreen = () => {
   const dispatch = useContext(DispatchContext);
-  const { visible } = props;
-  const initial: string[] = [];
-  const [items, setItems] = useState(initial);
-  const [backward, setBackward] = useState(false);
   return (
-    <Wrapper style={{ display: visible ? "block" : "none" }}>
+    <ScreenContainer>
       <h2>What is Imagene3?</h2>
       <p>
         An application that generates interesting imagery through the use of
         Darwin's theory of evolution.
       </p>
 
-      <TransitionGroup
-        component={SlideTransition}
-        className={backward ? "backward" : "forward"}
-      >
-        {items.map((n) => (
-          <CSSTransition key={n} timeout={200}>
-            <Square>Hello</Square>
-          </CSSTransition>
-        ))}
-      </TransitionGroup>
       <p>
         <button
-          onClick={() => {
-            setBackward(false);
-            setItems(["forward-" + window.performance.now()]);
-          }}
+          onClick={() => dispatch({ type: "PUSH_NAV", value: "information" })}
         >
-          Forward
-        </button>
-        <button
-          onClick={() => {
-            setBackward(true);
-            setItems(["back-" + window.performance.now()]);
-          }}
-        >
-          Backward
-        </button>
-        <button onClick={() => setLocation(dispatch, "information")}>
           What does that mean?
         </button>
         |{" "}
-        <button onClick={() => setLocation(dispatch, "population")}>
+        <button
+          onClick={() => dispatch({ type: "PUSH_NAV", value: "population" })}
+        >
           Get started
         </button>
       </p>
-    </Wrapper>
+    </ScreenContainer>
   );
 };
 
-const InformationScreen = (props: ScreenProps) => {
+const InformationScreen = () => {
   const dispatch = useContext(DispatchContext);
-  const { visible } = props;
 
   return (
-    <Wrapper style={{ display: visible ? "block" : "none" }}>
+    <ScreenContainer>
       <h2>How we generate images</h2>
 
       <p>
@@ -191,19 +141,18 @@ const InformationScreen = (props: ScreenProps) => {
         images.
       </p>
       <p>
-        <button onClick={() => setLocation(dispatch, "welcome")}>Back</button>
+        <button onClick={() => dispatch({ type: "POP_NAV" })}>Back</button>
       </p>
-    </Wrapper>
+    </ScreenContainer>
   );
 };
 
-const PopulationScreen = (props: ScreenProps) => {
+const PopulationScreen = () => {
   const dispatch = useContext(DispatchContext);
   const state = useContext(StateContext);
-  const { visible } = props;
   const { popSize, minDepth, maxDepth } = state;
   return (
-    <Wrapper style={{ display: visible ? "block" : "none" }}>
+    <ScreenContainer>
       <h2>Generate population</h2>
 
       <p>
@@ -255,20 +204,23 @@ const PopulationScreen = (props: ScreenProps) => {
           />
         </div>
       </div>
-      <button onClick={() => setLocation(dispatch, "welcome")}>Back</button>
-      <button onClick={() => setLocation(dispatch, "samples")}>Continue</button>
-    </Wrapper>
+      <button onClick={() => dispatch({ type: "POP_NAV" })}>Back</button>
+      <button onClick={() => dispatch({ type: "PUSH_NAV", value: "samples" })}>
+        Continue
+      </button>
+    </ScreenContainer>
   );
 };
 
-const SamplesScreen = (props: ScreenProps) => {
-  const _ = useContext(DispatchContext);
-  const { visible } = props;
+const SamplesScreen = () => {
+  const dispatch = useContext(DispatchContext);
 
   return (
-    <Wrapper style={{ display: visible ? "block" : "none" }}>
+    <ScreenContainer>
       <h2>Generate images/Samples</h2>
-    </Wrapper>
+
+      <button onClick={() => dispatch({ type: "POP_NAV" })}>Back</button>
+    </ScreenContainer>
   );
 };
 
@@ -279,9 +231,7 @@ function App() {
         <Container>
           Imagene3
           <ConnectedThemeControl />
-          <Grid>
-            <ConnectedRouter />
-          </Grid>
+          <ScreenRouter />
         </Container>
       </ConnectedTheme>
     </StateProvider>
@@ -301,16 +251,31 @@ const ConnectedThemeControl = () => {
   );
 };
 
-const ConnectedRouter = () => {
-  const { location } = useContext(StateContext);
+const ScreenRouter = () => {
+  const { navStack, navDir } = useContext(StateContext);
+  console.log(navStack.slice(0));
   return (
-    <React.Fragment>
-      <WelcomeScreen visible={location === "welcome"} />
-      <InformationScreen visible={location === "information"} />
-      <PopulationScreen visible={location === "population"} />
-      <SamplesScreen visible={location === "samples"} />
-    </React.Fragment>
+    <TransitionGroup component={ScreensContainer} className={navDir}>
+      {navStack.slice(0, 1).map((n) => (
+        <CSSTransition key={n} timeout={200}>
+          {renderScreen(n)}
+        </CSSTransition>
+      ))}
+    </TransitionGroup>
   );
+};
+
+const renderScreen = (screen: string) => {
+  switch (screen) {
+    case "information":
+      return <InformationScreen />;
+    case "population":
+      return <PopulationScreen />;
+    case "samples":
+      return <SamplesScreen />;
+  }
+
+  return <WelcomeScreen />;
 };
 
 export default App;

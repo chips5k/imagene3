@@ -1,52 +1,66 @@
 import React from "react";
 
+export type Direction = "backwards" | "forwards";
+
 export interface State {
   popSize: number;
   minDepth: number;
   maxDepth: number;
-  location: string;
+  navStack: string[];
+  navDir: Direction;
   theme: string;
 }
 
 export interface Action {
   type: string;
-  value: string;
+  value?: string;
 }
 
 const initialState: State = {
   popSize: 24,
   minDepth: 0,
   maxDepth: 12,
-  location: "welcome",
+  navStack: ["welcome"],
+  navDir: "forwards",
   theme: "dark",
 };
 
 const rootReducer = (state: State, action: Action) => {
+  console.log(action.value);
   switch (action.type) {
     case "SET_POP_SIZE":
       return {
         ...state,
-        popSize: +action.value,
+        popSize: action.value ? +action.value : 0,
       };
     case "SET_MIN_DEPTH":
       return {
         ...state,
-        minDepth: +action.value,
+        minDepth: action.value ? +action.value : 0,
       };
     case "SET_MAX_DEPTH":
       return {
         ...state,
-        maxDepth: +action.value,
+        maxDepth: action.value ? +action.value : 0,
       };
-    case "SET_LOCATION":
+    case "PUSH_NAV":
       return {
         ...state,
-        location: action.value,
+        navDir: "forwards" as Direction,
+        navStack: action.value
+          ? [action.value, ...state.navStack]
+          : state.navStack,
+      };
+    case "POP_NAV":
+      return {
+        ...state,
+        navDir: "backwards" as Direction,
+        navStack: state.navStack.slice(1),
       };
     case "SET_THEME":
       return {
         ...state,
-        theme: action.value,
+        theme: action.value ? action.value : "dark",
       };
     default:
       throw new Error("Invalid action");
