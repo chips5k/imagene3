@@ -1,9 +1,11 @@
 import React from "react";
-import {
+import styled, {
   createGlobalStyle,
   DefaultTheme,
   ThemeProvider,
 } from "styled-components/macro";
+
+import { Moon, Sunny } from "@styled-icons/ionicons-sharp";
 
 interface Themes {
   [key: string]: DefaultTheme;
@@ -11,22 +13,47 @@ interface Themes {
 
 const themes: Themes = {
   dark: {
-    bg: "rgb(5, 21, 28)",
-    fg: "white",
+    background: " rgb(21, 32, 43)",
+    borders: "rgb(56, 68, 77)",
+    text: "rgb(255,255,255)",
   },
   light: {
-    bg: "rgb(255, 255, 255)",
-    fg: "black",
+    background: "rgb(255,255,255)",
+    borders: "rgb(56, 68, 77)",
+    text: "rgb(0,0,0)",
   },
 };
+
+export const ThemedButton = styled.button`
+  background: none;
+  border: 1px solid ${(props) => props.theme.borders};
+  padding: 0.8em;
+  border-radius: 0.5em;
+  transition: background-color 0.5s;
+  color: ${(props) => props.theme.text};
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+`;
+
+const ThemeIconDark = styled(Moon)`
+  height: 1.3em;
+  color: white;
+`;
+
+const ThemeIconLight = styled(Sunny)`
+  height: 1.3em;
+  color: black;
+`;
 
 const GlobalStyle = createGlobalStyle`
   body { 
     margin: 0px;
-    background: ${(props) => props.theme.bg};
+    background: ${(props) => props.theme.background};
     padding: 0px;
     height: 100%;
     font-family: 'Atkinson Hyperlegible';
+    color: ${(props) => props.theme.text};
   }
   html {
     height: 100%
@@ -57,9 +84,11 @@ interface ThemeControlProps {
 
 const ThemeControl = ({ onSelectTheme, theme }: ThemeControlProps) => {
   return (
-    <button onClick={() => onSelectTheme(theme === "dark" ? "light" : "dark")}>
-      {theme}
-    </button>
+    <ThemedButton
+      onClick={() => onSelectTheme(theme === "dark" ? "light" : "dark")}
+    >
+      {theme == "dark" ? <ThemeIconDark /> : <ThemeIconLight />}
+    </ThemedButton>
   );
 };
 
