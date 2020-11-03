@@ -38,12 +38,10 @@ export const ThemedButton = styled.button`
 
 const ThemeIconDark = styled(Moon)`
   height: 1.3em;
-  color: white;
 `;
 
 const ThemeIconLight = styled(Sunny)`
   height: 1.3em;
-  color: black;
 `;
 
 const GlobalStyle = createGlobalStyle`
@@ -82,13 +80,20 @@ interface ThemeControlProps {
   theme: string;
 }
 
+const Btn = styled.button`
+  background: none;
+  padding: 1em;
+  margin: 0;
+  border: none;
+  color: white;
+  border-radius: 0;
+  outline: none;
+`;
 const ThemeControl = ({ onSelectTheme, theme }: ThemeControlProps) => {
   return (
-    <ThemedButton
-      onClick={() => onSelectTheme(theme === "dark" ? "light" : "dark")}
-    >
-      {theme == "dark" ? <ThemeIconDark /> : <ThemeIconLight />}
-    </ThemedButton>
+    <Btn onClick={() => onSelectTheme(theme === "dark" ? "light" : "dark")}>
+      {theme === "dark" ? <ThemeIconDark /> : <ThemeIconLight />}
+    </Btn>
   );
 };
 

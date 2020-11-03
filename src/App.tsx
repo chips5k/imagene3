@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import styled from "styled-components/macro";
 import Theme, { ThemeControl, ThemedButton } from "./Theme";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
@@ -12,15 +12,62 @@ import {
   setTheme,
 } from "./GlobalState";
 
-const Container = styled.div`
-  padding: 1em;
+const ScreensContainer = styled.div`
+  position: relative;
+  margin-left: 3em;
+  margin-right: 3em;
+
+  @media (min-width: 900px) {
+    max-width: 800px;
+    margin: auto;
+  }
+  &.forwards > .enter {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  &.forwards > .enter-active {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+
+  &.forwards > .exit {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+
+  &.forwards > .exit-active {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  &.backwards > .enter {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  &.backwards > .enter-active {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+
+  &.backwards > .exit {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+
+  &.backwards > .exit-active {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 `;
 
 const ScreenContainer = styled.div`
-  grid-column: 2/5;
-  grid-row: 1/1;
+  width: 100%;
+  position: absolute;
   border: 1px solid ${(props) => props.theme.borders};
   transition: 0.2s;
+  border-radius: 0.3em;
 `;
 
 const Heading = styled.h2`
@@ -34,51 +81,13 @@ const Content = styled.div`
   padding: 1em 1.5em;
 `;
 
-const ScreensContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr;
-  height: 100%;
-  width: 100%;
+const Actions = styled.div`
+  border-top: 1px solid ${(props) => props.theme.borders};
+  margin: 0px;
+  padding: 1em 1em;
 
-  &.forwards > .enter {
-    transform: translateX(800px);
-    opacity: 0;
-  }
-
-  &.forwards > .enter-active {
-    transform: translateX(0px);
-    opacity: 1;
-  }
-
-  &.forwards > .exit {
-    transform: translateX(0px);
-    opacity: 1;
-  }
-
-  &.forwards > .exit-active {
-    transform: translateX(-800px);
-    opacity: 0;
-  }
-
-  &.backwards > .enter {
-    transform: translateX(-800px);
-    opacity: 0;
-  }
-
-  &.backwards > .enter-active {
-    transform: translateX(0px);
-    opacity: 1;
-  }
-
-  &.backwards > .exit {
-    transform: translateX(0px);
-    opacity: 1;
-  }
-
-  &.backwards > .exit-active {
-    transform: translateX(800px);
-    opacity: 0;
+  & > button {
+    margin-right: 1em;
   }
 `;
 
@@ -92,20 +101,19 @@ const WelcomeScreen = () => {
           An application that generates interesting imagery through the use of
           Darwin's theory of evolution.
         </p>
-
-        <p>
-          <ThemedButton
-            onClick={() => dispatch({ type: "PUSH_NAV", value: "information" })}
-          >
-            What does that mean?
-          </ThemedButton>
-          <ThemedButton
-            onClick={() => dispatch({ type: "PUSH_NAV", value: "population" })}
-          >
-            Get started
-          </ThemedButton>
-        </p>
       </Content>
+      <Actions>
+        <ThemedButton
+          onClick={() => dispatch({ type: "PUSH_NAV", value: "information" })}
+        >
+          What does that mean?
+        </ThemedButton>
+        <ThemedButton
+          onClick={() => dispatch({ type: "PUSH_NAV", value: "population" })}
+        >
+          Get started
+        </ThemedButton>
+      </Actions>
     </ScreenContainer>
   );
 };
@@ -216,17 +224,17 @@ const PopulationScreen = () => {
             />
           </div>
         </div>
-        <p>
-          <ThemedButton onClick={() => dispatch({ type: "POP_NAV" })}>
-            Back
-          </ThemedButton>
-          <ThemedButton
-            onClick={() => dispatch({ type: "PUSH_NAV", value: "samples" })}
-          >
-            Continue
-          </ThemedButton>
-        </p>
       </Content>
+      <Actions>
+        <ThemedButton onClick={() => dispatch({ type: "POP_NAV" })}>
+          Back
+        </ThemedButton>
+        <ThemedButton
+          onClick={() => dispatch({ type: "PUSH_NAV", value: "samples" })}
+        >
+          Continue
+        </ThemedButton>
+      </Actions>
     </ScreenContainer>
   );
 };
@@ -237,13 +245,12 @@ const SamplesScreen = () => {
   return (
     <ScreenContainer>
       <Heading>Generate images/Samples</Heading>
-      <Content>
-        <p>
-          <ThemedButton onClick={() => dispatch({ type: "POP_NAV" })}>
-            Back
-          </ThemedButton>
-        </p>
-      </Content>
+      <Content></Content>
+      <Actions>
+        <ThemedButton onClick={() => dispatch({ type: "POP_NAV" })}>
+          Back
+        </ThemedButton>
+      </Actions>
     </ScreenContainer>
   );
 };
@@ -252,11 +259,11 @@ function App() {
   return (
     <StateProvider>
       <ConnectedTheme>
-        <Container>
-          Imagene3
+        <Header>
+          <Title>IMAGENE3</Title>
           <ConnectedThemeControl />
-          <ScreenRouter />
-        </Container>
+        </Header>
+        <ScreenRouter />
       </ConnectedTheme>
     </StateProvider>
   );
@@ -275,9 +282,23 @@ const ConnectedThemeControl = () => {
   );
 };
 
+const Header = styled.header`
+  background: black;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 2em;
+  color: white;
+`;
+
+const Title = styled.h1`
+  padding: 0.5em 1em;
+  font-size: 1em;
+`;
+
 const ScreenRouter = () => {
   const { navStack, navDir } = useContext(StateContext);
-  console.log(navStack.slice(0));
   return (
     <TransitionGroup component={ScreensContainer} className={navDir}>
       {navStack.slice(0, 1).map((n) => (
